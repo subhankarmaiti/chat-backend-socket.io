@@ -1,21 +1,22 @@
 const io = require("socket.io")();
+const messageHandler = require("./handlers/message.handler");
 
-// {
-//   _id: 1,
-//   text: "Hello developer",
-//   createdAt: new Date(),
-//   user: {
-//     _id: 2,
-//     name: "React Native",
-//     avatar: "https://placeimg.com/140/140/any"
-//   }
-// },
+let userIds = {};
+let currentUserId = 2;
+
+function createUserAvatarUrl() {
+  const rand1 = Math.round(Math.random() * 200 + 100);
+  const rand2 = Math.round(Math.random() * 200 + 100);
+  return `https://placeimg.com/${rand1}/${rand2}/any`;
+}
 
 io.on("connection", socket => {
   console.log("a user connected!");
-  socket.on("message", message => {
-    console.log(message);
-    io.emit("message", message);
+  userIds[socket.id] = { userId: currentUserId++ };
+  socket.on("join", username => {
+    userIds[socket.id].username = username;
+    userIds[socket.id].avatar = createUserAvatarUrl();
+    messageHandler.handleMessage(socket, userIds);
   });
 });
 
