@@ -18,6 +18,19 @@ io.on("connection", socket => {
     userIds[socket.id].avatar = createUserAvatarUrl();
     messageHandler.handleMessage(socket, userIds);
   });
+  socket.on("action", action => {
+    switch (action.type) {
+      case "server/hello":
+        console.log("Got hello action", action.payload);
+        socket.emit("action", { type: "message", data: "Good day!" });
+        break;
+      case "server/join":
+        console.log("Git join event", action.payload);
+        userIds[socket.id].username = action.payload;
+        userIds[socket.id].avatar = createUserAvatarUrl();
+        break;
+    }
+  });
 });
 
 const PORT = process.env.PORT || 5000;
